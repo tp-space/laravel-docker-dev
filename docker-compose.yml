@@ -1,0 +1,67 @@
+version: '3'
+
+#Docker Networks
+networks:
+  laravel-network:
+    driver: bridge
+
+services:
+
+  #Nginx Service
+  nginx:
+    build:
+        context: .
+        dockerfile: laravel-nginx.dockerfile
+    container_name: nginx
+    depends_on: 
+      - php
+    ports:
+      - "8090:8080"
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - laravel-network
+
+  composer:
+    build:
+      context: .
+      dockerfile: laravel-composer.dockerfile
+    container_name: composer
+    volumes:
+      - ./src:/var/www/html
+    depends_on:
+      - php
+    networks:
+      - laravel-network
+    entrypoint: ['composer', '--ignore-platform-reqs']
+
+  #PHP Service
+  php:
+    build:
+      context: .
+      dockerfile: laravel-php.dockerfile
+    container_name: php
+    volumes:
+      - ./src:/var/www/html
+    ports:
+        - "9000:9000"
+    networks:
+      - laravel-network
+
+  npm:
+    image: node:13.7
+    container_name: npm
+    volumes:
+      - ./src:/var/www/html
+    working_dir: /var/www/html
+    entrypoint: ['npm']
+
+  artisan:
+    build:
+      context: .
+      dockerfile: laravel-php.dockerfile
+    container_name: artisan
+    volumes:
+      - ./src:/var/www/html:delegated
+    entrypoint: ['php', '/var/www/html/artisan']
+
