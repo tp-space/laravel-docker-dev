@@ -16,7 +16,7 @@ services:
     depends_on: 
       - php
     ports:
-      - "8090:8080"
+      - "8080:8080"
     volumes:
       - ./src:/var/www/html
     networks:
